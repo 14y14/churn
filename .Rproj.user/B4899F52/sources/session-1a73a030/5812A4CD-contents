@@ -1,0 +1,120 @@
+#1. Setup R and read in data (5 min)
+#   1. Set your working directory.
+#Done
+
+#   2. Install (if necessary) and load all necessary packages.
+library(lubridate)
+library(Hmisc)
+library(data.table)
+
+#   3. Load the files data_customer.csv and data_personal.csv using the fread()function.
+dCustomer = fread("data_customer.csv")
+dPersonal = fread("data_personal.csv")
+
+#2. Prepare data for analysis (5 min)
+#   1. Merge the two data tables on the column CustomerId.
+merged = merge(dCustomer, dPersonal, by="CustomerId")
+
+#   2. Set the following columns to factors: Exited, Gender.
+#Hint: use the function as.factor().
+merged$Exited = as.factor(merged$Exited)
+merged$Gender = as.factor(merged$Gender)
+
+
+#   3. Make a quick check on the data, that everything is as expected.
+#Hint: use the functions str() and summary().
+str(merged)
+summary(merged)
+
+#3. Predict churn probability (20 min)
+#   1. Create a model for churn probability using logistic regression. The outcome
+#   variable is Exit (showing if a customer churned or not). Use as predictors the
+#   following variables: CreditScore, Gender, Age, Tenure, Balance,
+#   NumOfProducts, HasCrCard, IsActiveMember, EstimatedSalary.
+#Hint: use the function glm() with the argument family="binomial".
+
+linmod = glm(merged$Exited ~ merged$CreditScore + merged$Gender + merged$Age+ merged$Tenure+merged$Balance+merged$NumOfProducts
+             +merged$HasCrCard+merged$IsActiveMember+merged$EstimatedSalary, family = "binomial")
+linmod
+#library(ggplot2)
+#plot(linmod)
+
+
+#   2. Predict the churn probability for each customer and add this as a new column to your table.
+#Hint: use the following function: predict(object, newdata, type="response").
+#Object is your model for churn probability from the previous step, newdata is your merged data from step 2.1.
+churn_prob <- predict(linmod, newdata = merged, type = "response")
+
+# Add churn probability as a new column to your table
+merged$Churn_Probability <- churn_prob
+str(merged)
+
+#   3. Which are the customer with the highest and the lowest churn probability?
+# Find the customer with the highest churn probability
+highest_churn_prob <- merged[which.max(merged$Churn_Probability), ]
+# Find the customer with the lowest churn probability
+lowest_churn_prob <- merged[which.min(merged$Churn_Probability), ]
+
+# Print the results
+print(highest_churn_prob)
+print(lowest_churn_prob)
+
+#   4. Compute the average churn probability for men and women.
+avg_churn_prob = aggregate(merged$Churn_Probability ~ merged$Gender, data = merged, FUN = mean)
+# Print the results
+print(avg_churn_prob)
+
+
+#4. Create a package for churn prediction (45 min)
+#   1. Create a function that takes as input the dataset and a customer id and
+#   returns the churn probability for that customer id only.
+churnProb = function(dataset, customerId){
+  customer_row <- dataset[dataset$CustomerId == customerId, ]
+
+  # Check if customer ID exists in the dataset
+  if (nrow(customer_row) == 0) {
+    return("Customer ID not found in the dataset.")
+  }
+
+  # Extract churn probability for the customer
+  churnprobability <- customer_row$Churn_Probability
+  return(churnprobability)
+}
+print(churnProb(merged, 15565701))
+
+#   2. The function should check if the customer id provided exists in the dataset and throw an error otherwise.
+#Done
+
+#   3. Create a package with this function only. Make sure you specify data.table as dependency.
+#Done
+library(churn)
+
+#   4. Write a test as follows: the churn probability for the customer identified in step 3.4
+#   as having the highest probability is always higher than that of the customer identified in the same
+#   step as having the lowest probability.
+library(usethis)
+use_testthat()
+#Done
+
+#   5. Run the test.
+#Done
+
+#   6. Put your package on GitHub.
+
+
+#5. Create a dashboard (45 min)
+#   1. Use a sidebar layout. On the main panel display a map with the geographical
+#position of the top 100 customers with the highest churn probability.
+
+#   2. One the side panel, we want to have a form where we input the customer id and get the churn probability.
+
+#   3. Deploy the app on shinyapps.io
+
+
+#6. For the pros: ##don't need to do this
+#   1. Deploy the shiny app on google cloud.
+#Hint: pull the code from the GitHub repo on the VM and run the shiny app in a screen
+#(https://linuxize.com/post/how-to-use-linux-screen/). Make sure you open the shiny port.
+
+
+

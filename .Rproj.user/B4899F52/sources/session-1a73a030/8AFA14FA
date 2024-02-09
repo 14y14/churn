@@ -1,0 +1,26 @@
+{
+    "id": "8AFA14FA",
+    "path": "~/churn/R/churnProb.R",
+    "project_path": "R/churnProb.R",
+    "type": "r_source",
+    "hash": "3899068764",
+    "contents": "",
+    "dirty": false,
+    "created": 1707473157998.0,
+    "source_on_save": false,
+    "relative_order": 1,
+    "properties": {
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "11,3",
+        "scrollLine": "0"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1707474628,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1707474628265,
+    "read_only": false,
+    "read_only_alternatives": []
+}
